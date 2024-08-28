@@ -8,8 +8,49 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp> 
 #include <glm/gtc/matrix_transform.hpp> 
+
 #include "Utils.h"
+
 using namespace std;
+
+int Utils::screenWidth, Utils::screenHeight;
+
+void Utils::setScreenDimensions(int width, int height) {
+	screenWidth = width;
+	screenHeight = height;
+}
+
+float Utils::pixelToScreenX(int x) {
+	return ((float)x / (float)screenWidth) * 2.0f - 1.0f;
+}
+
+float Utils::pixelToScreenY(int y) {
+	return ((float)y / (float)screenHeight) * 2.0f - 1.0f;
+}
+
+float Utils::pixelsToScreenWidth(int w) {
+	return ((float)w / (float)screenWidth) * 2.0f;
+}
+
+float Utils::pixelsToScreenHeight(int h) {
+	return ((float)h / (float)screenHeight) * 2.0f;
+}
+
+int Utils::screenToPixelX(float x) {
+	return (int)(((x + 1.0f) / 2.0f) * screenWidth);
+}
+
+int Utils::screenToPixelY(float y) {
+	return (int)(((y + 1.0f) / 2.0f) * screenHeight);
+}
+
+int Utils::screenWidthToPixels(float w) {
+	return (int)((w / 2.0f) * screenWidth);
+}
+
+int Utils::screenHeightToPixels(float h) {
+	return (int)((h / 2.0f) * screenHeight);
+}
 
 Utils::Utils() {}
 
@@ -90,9 +131,6 @@ int Utils::finalizeShaderProgram(GLuint sprogram)
 	GLint linked;
 	glLinkProgram(sprogram);
 	checkOpenGLError();
-	cout  << "logs :";
-	printProgramLog(sprogram);
-	cout << endl;
 	glGetProgramiv(sprogram, GL_LINK_STATUS, &linked);
 	if (linked != 1)
 	{
@@ -108,6 +146,16 @@ GLuint Utils::createShaderProgram(const char *cs) {
 	glAttachShader(csProgram, computeShader);
 	finalizeShaderProgram(csProgram);
 	return csProgram;
+}
+
+GLuint Utils::createShaderProgram(const char *vp, const char *fp) {
+	GLuint vShader = prepareShader(GL_VERTEX_SHADER, vp);
+	GLuint fShader = prepareShader(GL_FRAGMENT_SHADER, fp);
+	GLuint vfprogram = glCreateProgram();
+	glAttachShader(vfprogram, vShader);
+	glAttachShader(vfprogram, fShader);
+	finalizeShaderProgram(vfprogram);
+	return vfprogram;
 }
 
 GLuint Utils::loadTexture(const char *texImagePath)
